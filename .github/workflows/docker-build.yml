@@ -16,5 +16,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Docker image
+            - name: Build Docker image
         run: docker build -t devops-website:ci .
+
+      - name: Test website response
+        run: docker run --rm -d --name ci-health-test -p 8080:80 devops-website:ci
+      - name: Verify website health
+        run: |
+          sleep 2
+          curl --fail http://localhost:8080
+      - name: Cleanup test container
+        if: always()
+        run: docker rm -f ci-health-test
